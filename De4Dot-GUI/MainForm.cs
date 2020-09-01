@@ -78,16 +78,17 @@ namespace De4DotGUI
                 return;
             }
 
-            string arguments = String.Format("-f \"{0}\" -o \"{1}\" {2}", txtInput.Text, txtOutput.Text, txtAdditional.Text);
+            string arguments = String.Format(" -f \"{0}\" -o \"{1}\" {2}", txtInput.Text, txtOutput.Text, txtAdditional.Text);
 
-// ReSharper disable InconsistentNaming
+            // ReSharper disable InconsistentNaming
             Process de4dot = new Process
-// ReSharper restore InconsistentNaming
+            // ReSharper restore InconsistentNaming
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = exeName,
-                    Arguments = arguments,
+                    FileName = "cmd.exe",
+                    WorkingDirectory = System.AppDomain.CurrentDomain.BaseDirectory,
+                    Arguments = "/c " + exeName + arguments,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
@@ -99,7 +100,11 @@ namespace De4DotGUI
                 txtOut.AppendText(String.Format("=== START NEW DEOBFUSCATION ==={0}{0}Command: {1}{0}Output:{0}", "\r\n", String.Format("{0} {1}", exeName, arguments)));
                 de4dot.Start();
                 while (!de4dot.StandardOutput.EndOfStream)
+                {
                     txtOut.AppendText(String.Format("{0}{1}", de4dot.StandardOutput.ReadLine(), "\r\n"));
+                }
+                de4dot.WaitForExit();
+                
             }
             catch (System.ComponentModel.Win32Exception)
             {
@@ -107,7 +112,9 @@ namespace De4DotGUI
             }
             finally
             {
+
                 txtOut.AppendText(String.Format("{0}{0}=== END OF DEOBFUSCATION ==={0}{0}", "\r\n"));
+     
             }
         }
 	}
